@@ -1,0 +1,42 @@
+{
+  "name": "vacantions_backend",
+  "version": "0.0.1",
+  "private": true,
+  "author": "akishin@dev.vtb.ru",
+  "repository": "https://github.com/frontmaker/vacations_backend.git",
+  "engines": {
+    "node": "14.16.0"
+  },
+  "scripts": {
+    "start": "node dist/src/server.js",
+    "build": "tsc",
+    "dev": "./bin/dev.sh",
+    "dev-server": "NODE_ENV=development nodemon",
+    "ts-node-server": "ts-node src/server.ts",
+    "lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts",
+    "lint:fix": "./node_modules/eslint/bin/eslint.js  src --ext .ts --fix"
+  },
+  "dependencies": {
+    "body-parser": "1.19.0",
+    "compression": "1.7.4",
+    "dotenv": "8.2.0",
+    "express": "4.17.1",
+    "joi": "17.4.0",
+    "mongoose": "5.12.5",
+    "winston": "3.3.3"
+  },
+  "devDependencies": {
+    "@types/compression": "1.7.0",
+    "@types/express": "4.17.11",
+    "@types/node": "14.14.41",
+    "@typescript-eslint/eslint-plugin": "4.22.0",
+    "@typescript-eslint/parser": "4.22.0",
+    "eslint": "7.24.0",
+    "eslint-config-airbnb-base": "14.2.1",
+    "eslint-plugin-import": "2.22.1",
+    "nodemon": "2.0.7",
+    "prettier": "2.2.1",
+    "ts-node": "9.1.1",
+    "typescript": "4.2.4"
+  }
+}
