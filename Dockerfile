@@ -4,7 +4,7 @@ FROM node:12
 COPY package.json yarn.lock ./
 
 # Install deps
-RUN npm i
+RUN yarn
 
 # Copy source
 COPY src ./src
