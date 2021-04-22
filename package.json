@@ -8,7 +8,7 @@
     "node": "14.16.0"
   },
   "scripts": {
-    "start": "node dist/src/server.js",
+    "start": "node dist/server.js",
     "build": "tsc",
     "dev": "./bin/dev.sh",
     "dev-server": "NODE_ENV=development nodemon",
