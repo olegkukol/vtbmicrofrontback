@@ -1,19 +1,12 @@
-FROM node:12
+FROM node:lts
 
-# Add package file
-COPY package.json yarn.lock ./
-
-# Install deps
+WORKDIR /app
+COPY ./package.json ./yarn.lock ./
 RUN yarn
-
-# Copy source
-COPY src ./src
-COPY tsconfig.json ./tsconfig.json
-
-# Build dist
+COPY . .
 RUN npm run build
+RUN chown -R node:node /app
+USER node
 
-# Expose port 3000
 EXPOSE 3000
-
-CMD npm run start
+CMD npm start

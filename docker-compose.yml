@@ -1,23 +1,11 @@
 version: '3'
 
 services:
-  api-server:
-    build:
-      context: .
-    container_name: api-server
-    image: api-server
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=3000
-      - MONGO_URL=mongodb://host.docker.internal:27017/db
-    volumes:
-      - ./logs:/logs
-    networks:
-      - app-network
+  postgres:
+    image: postgres:10.4
     ports:
-      - '3000:3000'
-
-networks:
-  app-network:
-    driver: bridge
+      - '35432:5432'
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: db
