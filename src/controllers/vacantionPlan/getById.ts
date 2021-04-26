@@ -4,14 +4,14 @@ import db from '../../prisma';
 const getById: RequestHandler = async (req, res) => {
   const { id } = req.params;
   try {
-    const team = await db.team.findUnique({
+    const vacantionPlan = await db.vacantionPlan.findUnique({
       where: {
         id
       },
       rejectOnNotFound: true
     });
 
-    res.send(team);
+    res.send(vacantionPlan);
   } catch (err) {
     res.status(400).send({
       message: `Not found team: ${id} `

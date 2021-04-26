@@ -18,8 +18,6 @@ router.post('/team/', TeamController.create);
 router.get('/employees/', EmployeeController.getAll);
 router.post('/employee/', EmployeeController.create);
 router.get('/employee/:id', EmployeeController.getById);
-router.post('/employee/:id/skill', EmployeeController.addSkill);
-router.post('/employee/:id/vacantion_plan', EmployeeController.createVacantionPlan);
 
 router.get('/vacation_application', VacantionApplicationController.create);
 

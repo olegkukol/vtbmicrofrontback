@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import db from '../../prisma';
 
 export const vacantionAppliationSchema = Joi.object().keys({
   employeeId: Joi.string().required(),
@@ -15,12 +16,19 @@ export const vacantionAppliationSchema = Joi.object().keys({
 });
 
 const create: RequestHandler = async (req, res) => {
-  // try {
-  // } catch (err) {
-  //   res.status(400).send({
-  //     message: err.message
-  //   });
-  // }
+  try {
+    const data = await vacantionAppliationSchema.validateAsync(req.body);
+
+    const vacantionAppliation = await db.employee.create({
+      data
+    });
+
+    res.send(vacantionAppliation);
+  } catch (err) {
+    res.status(400).send({
+      message: err.message
+    });
+  }
 };
 
 export default create;

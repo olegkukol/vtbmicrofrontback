@@ -1,9 +1,8 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import db from '../../prisma';
 
 export const employeeSchema = Joi.object().keys({
-  streamId: Joi.string().required(),
-  teamId: Joi.string().required(),
   fio: Joi.string().required(),
   position: Joi.string().required(),
   role: Joi.string().required(),
@@ -12,7 +11,13 @@ export const employeeSchema = Joi.object().keys({
 
 const create: RequestHandler = async (req, res) => {
   try {
-    // const result = await employeeSchema.validateAsync(req.body);
+    const data = await employeeSchema.validateAsync(req.body);
+
+    const employee = await db.employee.create({
+      data
+    });
+
+    res.send(employee);
   } catch (err) {
     res.status(400).send({
       message: err.message

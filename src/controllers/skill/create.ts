@@ -4,19 +4,19 @@ import db from '../../prisma';
 
 export const streamSchema = Joi.object().keys({
   name: Joi.string().required(),
-  headOfDepartmentId: Joi.string().required(),
-  itLeaderId: Joi.string().required()
+  level: Joi.number().required(),
+  emlpoyeeId: Joi.string().required()
 });
 
-const create: RequestHandler = async (req, res) => {
+const addSkill: RequestHandler = async (req, res) => {
   try {
     const data = await streamSchema.validateAsync(req.body);
 
-    const stream = await db.stream.create({
+    const skill = await db.skill.create({
       data
     });
 
-    res.send(stream);
+    res.send(skill);
   } catch (err) {
     res.status(400).send({
       message: err.message
@@ -24,4 +24,4 @@ const create: RequestHandler = async (req, res) => {
   }
 };
 
-export default create;
+export default addSkill;

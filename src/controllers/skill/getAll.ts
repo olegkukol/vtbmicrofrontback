@@ -2,12 +2,18 @@ import { RequestHandler } from 'express';
 import db from '../../prisma';
 
 const getAll: RequestHandler = async (req, res) => {
+  const { id } = req.params;
   try {
-    const streams = await db.stream.findMany();
-    res.send(streams);
+    const skills = await db.skill.findMany({
+      where: {
+        employeeId: id
+      }
+    });
+
+    res.send(skills);
   } catch (err) {
     res.status(400).send({
-      message: err.message
+      message: `Not found skills for: ${id} `
     });
   }
 };
