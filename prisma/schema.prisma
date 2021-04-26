@@ -7,29 +7,79 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model migrations {
-  id   Int  @id
-  data Json
+enum Type {
+  INTERNAL
+  OUTSTAFF
 }
 
-model users {
-  id       String  @id @db.Uuid
-  email    String? @unique
-  password String?
+model Skill {
+  id         String    @id @default(uuid())
+  name       String
+  level      String
+  Employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String
 }
 
-model Emlpoyee {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+model VacantionPlan {
+  id        String     @id @default(uuid())
+  startDate DateTime   @default(now())
+  Employee  Employee[]
 }
 
-model Post {
-  id        Int     @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User?   @relation(fields: [authorId], references: [id])
-  authorId  Int?
+model VacantionApplication {
+  id                         String    @id @default(uuid())
+  employee                   Employee? @relation("employee", fields: [employeeId], references: [id])
+  employeeId                 String
+  startDate                  DateTime  @default(now())
+  numberOfDays               Int
+  substituteEmployee         Employee  @relation("substituteEmployee", fields: [substituteEmployeeId], references: [id])
+  substituteEmployeeId       String
+  headOfDepartment           Employee  @relation("headOfDepartment", fields: [headOfDepartmentId], references: [id])
+  headOfDepartmentId         String
+  team                       Team      @relation(fields: [teamId], references: [id])
+  teamId                     String
+  stream                     Stream    @relation(fields: [streamId], references: [id])
+  streamId                   String
+  approvalTeamItLeaderId     String
+  approvalStreamItLeaderId   String
+  approvalHeadOfDepartmentId String
+  approved                   Boolean   @default(false)
+}
+
+model Employee {
+  id                 String                @id @default(uuid())
+  fio                String
+  position           String
+  role               String
+  type               Type                  @default(INTERNAL)
+  skills             Skill[]
+  vacantionPlan      VacantionPlan?        @relation(fields: [vacantionPlanId], references: [id])
+  vacantionPlanId    String?
+  Employee           VacantionApplication? @relation("employee")
+  SubstituteEmployee VacantionApplication? @relation("substituteEmployee")
+  HeadOfDepartment   VacantionApplication? @relation("headOfDepartment")
+  Stream             Stream?               @relation(fields: [streamId], references: [id])
+  streamId           String?
+  Team               Team?                 @relation(fields: [teamId], references: [id])
+  teamId             String?
+}
+
+model Team {
+  id                   String                 @id @default(uuid())
+  name                 String
+  streamId             String
+  stream               Stream                 @relation(fields: [streamId], references: [id])
+  itLeaderId           String
+  VacantionApplication VacantionApplication[]
+  emploees             Employee[]
+}
+
+model Stream {
+  id                   String                 @id @default(uuid())
+  name                 String
+  headOfDepartmentId   String?
+  itLeaderId           String?
+  Employee             Employee[]
+  Team                 Team[]
+  VacantionApplication VacantionApplication[]
 }
