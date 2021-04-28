@@ -1,11 +1,14 @@
 import { RequestHandler } from 'express';
+import { omit } from 'lodash';
 import db from '../../prisma';
 import logger from '../../logger';
 
 const getAll: RequestHandler = async (req, res) => {
   try {
     const employees = await db.employee.findMany();
-    res.send(employees);
+    const filtered = employees.map(employee => omit(employee, ['password', 'username']));
+
+    res.send(filtered);
   } catch (err) {
     logger.log({
       level: 'info',

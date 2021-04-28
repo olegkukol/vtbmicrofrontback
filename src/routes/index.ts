@@ -1,24 +1,30 @@
 import { Router } from 'express';
 
+import IsAuthenticated from '../middleware/IsAuthenticated';
+
 import * as StreamController from '../controllers/stream';
 import * as TeamController from '../controllers/team';
 import * as EmployeeController from '../controllers/employee';
 import * as VacantionApplicationController from '../controllers/vacantionApplication';
+import * as AuthController from '../controllers/auth';
 
 const router = Router();
 
-router.get('/streams/', StreamController.getAll);
-router.get('/stream/:id', StreamController.getById);
-router.post('/stream/', StreamController.create);
+router.post('/login', AuthController.login);
+router.post('/logout', AuthController.logout);
+router.post('/register', AuthController.register);
 
-router.get('/teams/', TeamController.getAll);
-router.get('/team/:id', TeamController.getById);
-router.post('/team/', TeamController.create);
+router.get('/streams/', IsAuthenticated, StreamController.getAll);
+router.get('/stream/:id', IsAuthenticated, StreamController.getById);
+router.post('/stream/', IsAuthenticated, StreamController.create);
 
-router.get('/employees/', EmployeeController.getAll);
-router.post('/employee/', EmployeeController.create);
-router.get('/employee/:id', EmployeeController.getById);
+router.get('/teams/', IsAuthenticated, TeamController.getAll);
+router.get('/team/:id', IsAuthenticated, TeamController.getById);
+router.post('/team/', IsAuthenticated, TeamController.create);
 
-router.get('/vacation_application', VacantionApplicationController.create);
+router.get('/employees/', IsAuthenticated, EmployeeController.getAll);
+router.get('/employee/:id', IsAuthenticated, EmployeeController.getById);
+
+router.get('/vacation_application', IsAuthenticated, VacantionApplicationController.create);
 
 export default router;

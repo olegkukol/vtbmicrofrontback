@@ -48,6 +48,8 @@ model VacantionApplication {
 
 model Employee {
   id                 String                @id @default(uuid())
+  username           String                @unique
+  password           String
   fio                String
   position           String
   role               String
