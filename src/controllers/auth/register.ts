@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { Request, Response } from 'express';
 import Joi from 'joi';
 import { hashSync } from 'bcrypt';
 import db from '../../prisma';
@@ -6,14 +6,15 @@ import logger from '../../logger';
 
 export const registerSchema = Joi.object().keys({
   username: Joi.string().required(),
-  password: Joi.string().required(),
-  fio: Joi.string().required(),
-  position: Joi.string().required(),
-  role: Joi.string().required(),
-  type: Joi.string().required()
+  password: Joi.string().required()
 });
 
-const register: RequestHandler = async (req, res) => {
+type RegisterRequest = Request & {
+  sessionID: string;
+  session: { isLogged: boolean; userId: string };
+};
+
+const register = async (req: RegisterRequest, res: Response) => {
   try {
     const data = await registerSchema.validateAsync(req.body);
 
@@ -36,12 +37,12 @@ const register: RequestHandler = async (req, res) => {
       }
     });
 
-    return res.status(200).send({
-      fio: newUser.fio,
-      position: newUser.position,
-      role: newUser.role,
-      type: newUser.type,
-      id: newUser.id
+    req.session.userId = newUser.id;
+    req.session.isLogged = true;
+
+    return res.send({
+      id: newUser.id,
+      username: newUser.username
     });
   } catch (err) {
     logger.log({

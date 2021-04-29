@@ -72,10 +72,36 @@ const STREAMS = [
 ];
 
 async function main() {
-  await prisma.stream.createMany({
-    data: STREAMS,
-    skipDuplicates: true
-  });
+  try {
+    const result = [];
+
+    for (let i = 0; i < STREAMS.length; i += 1) {
+      result.push(
+        prisma.stream.create({
+          data: {
+            name: STREAMS[i].name,
+            teams: {
+              create: [
+                {
+                  name: 'Team 1'
+                },
+                {
+                  name: 'Team 2'
+                },
+                {
+                  name: 'Team 3'
+                }
+              ]
+            }
+          }
+        })
+      );
+    }
+
+    await Promise.all(result);
+  } catch (e) {
+    console.error(e.message); // eslint-disable-line no-console
+  }
 }
 
 main()

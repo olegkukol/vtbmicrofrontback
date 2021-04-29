@@ -10,7 +10,7 @@ export const loginSchema = Joi.object().keys({
 
 type LoginRequest = Request & {
   sessionID: string;
-  session: { isLogged: boolean };
+  session: { isLogged: boolean; userId: string };
 };
 
 const login = async (req: LoginRequest, res: Response) => {
@@ -37,6 +37,7 @@ const login = async (req: LoginRequest, res: Response) => {
       });
     }
 
+    req.session.userId = user.id;
     req.session.isLogged = true;
 
     return res.status(200).send({
