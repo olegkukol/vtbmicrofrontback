@@ -10,6 +10,7 @@
     "dev": "./bin/dev.sh",
     "dev-server": "NODE_ENV=development nodemon",
     "ts-node-server": "ts-node src/server.ts",
+    "seed": "prisma db seed --preview-feature",
     "lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts",
     "lint:fix": "./node_modules/eslint/bin/eslint.js  src --ext .ts --fix"
   },
