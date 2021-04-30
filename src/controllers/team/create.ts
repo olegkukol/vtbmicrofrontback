@@ -5,7 +5,7 @@ import db from '../../prisma';
 export const teamSchema = Joi.object().keys({
   name: Joi.string().required(),
   streamId: Joi.string().required(),
-  itLeaderId: Joi.string().required()
+  teamItLeaderId: Joi.string().required()
 });
 
 const create: RequestHandler = async (req, res) => {

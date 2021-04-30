@@ -29,6 +29,36 @@ const create = async (req: LoginRequest, res: Response) => {
       data
     });
 
+    if (data.role === 'HEAD_OF_STREAM') {
+      await db.stream.update({
+        where: {
+          id: data.streamId
+        },
+        data: {
+          streamItLeaderId: profile.id
+        }
+      });
+    }
+
+    if (data.role === 'HEAD_OF_TEAM') {
+      await db.team.update({
+        where: {
+          id: data.teamId
+        },
+        data: {
+          teamItLeaderId: profile.id
+        }
+      });
+    }
+
+    if (data.role === 'HEAD_OF_DEPARTMENT') {
+      await db.stream.updateMany({
+        data: {
+          headOfDepartmentId: profile.id
+        }
+      });
+    }
+
     return res.send(omit(profile, ['username', 'password']));
   } catch (err) {
     logger.log({

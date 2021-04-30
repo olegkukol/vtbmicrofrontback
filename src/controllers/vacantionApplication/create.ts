@@ -1,31 +1,101 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import { pick } from 'lodash';
 import db from '../../prisma';
 
 export const vacantionAppliationSchema = Joi.object().keys({
-  employeeId: Joi.string().required(),
-  teamId: Joi.string().required(),
-  streamId: Joi.string().required(),
   startDate: Joi.string().required(),
-  numberOfDays: Joi.number().required(),
-  substituteEmployeeId: Joi.string().required(),
-  headOfDepartmentId: Joi.string().required(),
-  approvalTeamItLeaderId: Joi.string().required(),
-  approvalStreamItLeaderId: Joi.string().required(),
-  approvalHeadOfDepartmentId: Joi.string().required()
+  endDate: Joi.string().required(),
+  substituteEmployeeId: Joi.string()
 });
 
-const create: RequestHandler = async (req, res) => {
+const create: RequestHandler = async (req: any, res) => {
   try {
     const data = await vacantionAppliationSchema.validateAsync(req.body);
 
-    const vacantionAppliation = await db.employee.create({
-      data
+    const currentUser = await db.employee.findUnique({
+      where: {
+        id: req.session.userId
+      }
     });
 
-    res.send(vacantionAppliation);
+    const stream = await db.stream.findUnique({
+      where: {
+        id: currentUser.streamId
+      }
+    });
+
+    const team = await db.team.findUnique({
+      where: {
+        id: currentUser.teamId
+      }
+    });
+
+    const vacantionAppliation = await db.vacantionApplication.update({
+      where: {
+        employeeId: req.session.userId
+      },
+      data: {
+        ...data,
+        employeeId: req.session.userId,
+        teamId: currentUser.teamId,
+        streamId: currentUser.streamId,
+        approvalTeamItLeaderId: team.teamItLeaderId,
+        approvalStreamItLeaderId: stream.streamItLeaderId,
+        approvalHeadOfDepartmentId: stream.headOfDepartmentId
+      }
+    });
+
+    const teamLeader = await db.employee.findUnique({
+      where: {
+        id: team.teamItLeaderId
+      }
+    });
+
+    const streamLeader = await db.employee.findUnique({
+      where: {
+        id: stream.streamItLeaderId
+      }
+    });
+
+    const headOfDepartment = await db.employee.findUnique({
+      where: {
+        id: stream.headOfDepartmentId
+      }
+    });
+
+    await db.stagingOfApproving.update({
+      where: {
+        vacantionAppliationId: vacantionAppliation.id
+      },
+      data: {
+        vacantionAppliationId: vacantionAppliation.id,
+        teamItLeaderFio: teamLeader.fio,
+        streamItLeaderFio: streamLeader.fio,
+        headOfDepartmentFio: headOfDepartment.fio,
+        isTeamLeaderApproved: false,
+        isStreamItLeaderApproved: false,
+        isHeaderOfDepartmentApproved: false
+      }
+    });
+
+    const stagesOfApproving = [
+      { fio: teamLeader.fio, role: teamLeader.role, approved: false },
+      { fio: streamLeader.fio, role: streamLeader.role, approved: false },
+      { fio: headOfDepartment.fio, role: headOfDepartment.role, approved: false }
+    ];
+
+    return res.send(
+      pick(
+        {
+          ...vacantionAppliation,
+          stagesOfApproving
+        },
+        ['startDate', 'endDate', 'stagesOfApproving']
+      )
+    );
   } catch (err) {
-    res.status(400).send({
+    return res.status(400).send({
       message: err.message
     });
   }
