@@ -1,22 +1,26 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import { omit } from 'lodash';
 import db from '../../prisma';
 
-export const streamSchema = Joi.object().keys({
+export const skillSchema = Joi.object().keys({
   name: Joi.string().required(),
-  level: Joi.number().required(),
-  emlpoyeeId: Joi.string().required()
+  level: Joi.number().required()
 });
 
-const addSkill: RequestHandler = async (req, res) => {
+const addSkill: RequestHandler = async (req: any, res) => {
   try {
-    const data = await streamSchema.validateAsync(req.body);
+    const { userId } = req.session;
+    const data = await skillSchema.validateAsync(req.body);
 
     const skill = await db.skill.create({
-      data
+      data: {
+        ...data,
+        employeeId: userId
+      }
     });
 
-    res.send(skill);
+    res.send(omit(skill, ['employeeId']));
   } catch (err) {
     res.status(400).send({
       message: err.message
