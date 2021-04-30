@@ -1,7 +1,7 @@
 interface Team {
   name: string;
   streamId: string;
-  itLeaderId: string;
+  teamItLeaderId: string;
 }
 
 export default Team;
