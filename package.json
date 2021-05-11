@@ -6,7 +6,7 @@
   "repository": "https://github.com/frontmaker/vacations_backend.git",
   "scripts": {
     "build": "docker-compose up -d --force-recreate && npm start",
-    "start": "node ./dist/server.js",
+    "start": "tsc && node ./dist/server.js",
     "dev": "./bin/dev.sh",
     "compile": "prisma generate && tsc",
     "dev-server": "cross-env NODE_ENV=development nodemon",
