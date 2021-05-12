@@ -4,14 +4,13 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import redis from 'redis';
-import connectRedis from 'connect-redis';
 import routes from './routes';
+
+const RedisStore = require('connect-redis')(session);
 
 const app = express();
 
 const REDIS_PORT = 6379;
-
-const RedisStore = connectRedis(session);
 
 const redisClient = redis.createClient({
   host: 'localhost',
