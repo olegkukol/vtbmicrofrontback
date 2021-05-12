@@ -2,11 +2,12 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import session from 'express-session';
 import redis from 'redis';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
 import routes from './routes';
 
-const RedisStore = require('connect-redis')(session);
+const RedisStore = connectRedis(session);
 
 const app = express();
 
