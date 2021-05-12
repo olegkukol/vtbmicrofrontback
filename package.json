@@ -13,6 +13,7 @@
     "ts-node-server": "ts-node src/server.ts",
     "seed": "prisma db seed --preview-feature",
     "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
     "lint": "./node_modules/eslint/bin/eslint.js  src --ext .ts",
     "lint:fix": "./node_modules/eslint/bin/eslint.js  src --ext .ts --fix"
   },
