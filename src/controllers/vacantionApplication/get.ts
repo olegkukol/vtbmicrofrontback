@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { pick } from 'lodash';
 import db from '../../prisma';
 
-const get: RequestHandler = async (req: any, res) => {
+const get: RequestHandler = async (req, res) => {
   try {
     const vacantionAppliation = await db.vacantionApplication.findUnique({
       where: {
@@ -18,8 +18,6 @@ const get: RequestHandler = async (req: any, res) => {
         vacantionAppliationId: vacantionAppliation.id
       }
     });
-
-    console.log(vacantionAppliation.stages);
 
     const stagesOfApproving = [
       {

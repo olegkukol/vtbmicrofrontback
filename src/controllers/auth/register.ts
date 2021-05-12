@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import Joi from 'joi';
 import { hashSync } from 'bcrypt';
 import db from '../../prisma';
@@ -9,12 +9,7 @@ export const registerSchema = Joi.object().keys({
   password: Joi.string().required()
 });
 
-type RegisterRequest = Request & {
-  sessionID: string;
-  session: { isLogged: boolean; userId: string };
-};
-
-const register = async (req: RegisterRequest, res: Response) => {
+const register: RequestHandler = async (req, res) => {
   try {
     const data = await registerSchema.validateAsync(req.body);
 

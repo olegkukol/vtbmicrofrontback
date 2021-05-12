@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { omit } from 'lodash';
 import db from '../../prisma';
 
-const getAll: RequestHandler = async (req: any, res) => {
+const getAll: RequestHandler = async (req, res) => {
   const { userId } = req.session;
 
   try {

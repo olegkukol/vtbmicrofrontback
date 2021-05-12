@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import Joi from 'joi';
 import { omit } from 'lodash';
 import db from '../../prisma';
@@ -13,12 +13,7 @@ export const profileSchema = Joi.object().keys({
   streamId: Joi.string()
 });
 
-type LoginRequest = Request & {
-  sessionID: string;
-  session: { isLogged: boolean; userId: string };
-};
-
-const create = async (req: LoginRequest, res: Response) => {
+const create: RequestHandler = async (req, res) => {
   try {
     const data = await profileSchema.validateAsync(req.body);
 

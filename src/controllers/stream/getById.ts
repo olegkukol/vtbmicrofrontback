@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { omit } from 'lodash';
 import db from '../../prisma';
 
 const getById: RequestHandler = async (req, res) => {
@@ -11,7 +12,7 @@ const getById: RequestHandler = async (req, res) => {
       rejectOnNotFound: true
     });
 
-    res.send(stream);
+    res.send(omit(stream, ['headOfDepartmentId', 'streamItLeaderId']));
   } catch (err) {
     res.status(400).send({
       message: `Not found stream: ${id} `

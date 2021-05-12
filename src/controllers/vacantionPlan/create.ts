@@ -8,7 +8,7 @@ export const vacantionPlanSchema = Joi.object().keys({
   endDate: Joi.string().required()
 });
 
-const get: RequestHandler = async (req: any, res) => {
+const get: RequestHandler = async (req, res) => {
   try {
     const data = await vacantionPlanSchema.validateAsync(req.body);
 

@@ -3,13 +3,18 @@ import { omit } from 'lodash';
 import db from '../../prisma';
 import logger from '../../logger';
 
-const getAll: RequestHandler = async (req: any, res) => {
+const getAll: RequestHandler = async (req, res) => {
   try {
-    const employees = await db.employee.findMany();
+    const employees = await db.employee.findMany({
+      include: {
+        skills: true
+      }
+    });
 
-    const ommited = employees.map(employee => omit(employee, ['password', 'username']));
+    // tracking https://github.com/prisma/prisma/issues/5042 for exclude fields params
+    const mapped = employees.map(employee => omit(employee, ['password', 'username']));
 
-    return res.send(ommited);
+    return res.send(mapped);
   } catch (err) {
     logger.log({
       level: 'info',

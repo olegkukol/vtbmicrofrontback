@@ -4,7 +4,7 @@ import Employee from '../../models/Employee';
 import db from '../../prisma';
 import logger from '../../logger';
 
-const getAll: RequestHandler = async (req: any, res) => {
+const getAll: RequestHandler = async (req, res) => {
   try {
     const currentUser = await db.employee.findUnique({
       where: {
@@ -39,9 +39,18 @@ const getAll: RequestHandler = async (req: any, res) => {
       }
     });
 
-    return res.send(
-      applications.map(item => pick(item, ['startDate', 'endDate', 'stagesOfApproving']))
-    );
+    const stagingOfApprovings = await db.stagingOfApproving.findMany();
+
+    const mapped = applications
+      .map(application => ({
+        ...application,
+        stagesOfApproving: stagingOfApprovings.filter(
+          stagingOfApproving => stagingOfApproving.vacantionAppliationId === application.id
+        )
+      }))
+      .map(employee => pick(employee, ['id', 'startDate', 'endDate', 'stagesOfApproving']));
+
+    return res.send(mapped);
   } catch (err) {
     logger.log({
       level: 'info',

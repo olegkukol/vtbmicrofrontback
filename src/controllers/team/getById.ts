@@ -8,6 +8,12 @@ const getById: RequestHandler = async (req, res) => {
       where: {
         id
       },
+      select: {
+        id: true,
+        name: true,
+        streamId: false,
+        teamItLeaderId: false
+      },
       rejectOnNotFound: true
     });
 

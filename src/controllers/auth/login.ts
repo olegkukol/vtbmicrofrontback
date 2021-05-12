@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import Joi from 'joi';
 import { compareSync } from 'bcrypt';
 import db from '../../prisma';
@@ -8,12 +8,7 @@ export const loginSchema = Joi.object().keys({
   password: Joi.string().required()
 });
 
-type LoginRequest = Request & {
-  sessionID: string;
-  session: { isLogged: boolean; userId: string };
-};
-
-const login = async (req: LoginRequest, res: Response) => {
+const login: RequestHandler = async (req, res) => {
   try {
     const data = await loginSchema.validateAsync(req.body);
 

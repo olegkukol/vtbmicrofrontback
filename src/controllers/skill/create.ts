@@ -8,7 +8,7 @@ export const skillSchema = Joi.object().keys({
   level: Joi.number().required()
 });
 
-const addSkill: RequestHandler = async (req: any, res) => {
+const addSkill: RequestHandler = async (req, res) => {
   try {
     const { userId } = req.session;
     const data = await skillSchema.validateAsync(req.body);

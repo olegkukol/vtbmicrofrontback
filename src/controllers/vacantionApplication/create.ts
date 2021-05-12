@@ -9,7 +9,7 @@ export const vacantionAppliationSchema = Joi.object().keys({
   substituteEmployeeId: Joi.string()
 });
 
-const create: RequestHandler = async (req: any, res) => {
+const create: RequestHandler = async (req, res) => {
   try {
     const data = await vacantionAppliationSchema.validateAsync(req.body);
 
@@ -31,10 +31,7 @@ const create: RequestHandler = async (req: any, res) => {
       }
     });
 
-    const vacantionAppliation = await db.vacantionApplication.update({
-      where: {
-        employeeId: req.session.userId
-      },
+    const vacantionAppliation = await db.vacantionApplication.create({
       data: {
         ...data,
         employeeId: req.session.userId,
@@ -64,10 +61,7 @@ const create: RequestHandler = async (req: any, res) => {
       }
     });
 
-    await db.stagingOfApproving.update({
-      where: {
-        vacantionAppliationId: vacantionAppliation.id
-      },
+    await db.stagingOfApproving.create({
       data: {
         vacantionAppliationId: vacantionAppliation.id,
         teamItLeaderFio: teamLeader.fio,

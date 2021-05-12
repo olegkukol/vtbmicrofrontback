@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { pick } from 'lodash';
 import db from '../../prisma';
 
-const get: RequestHandler = async (req: any, res) => {
+const get: RequestHandler = async (req, res) => {
   try {
     const vacantionPlan = await db.vacantionPlan.findUnique({
       where: {
