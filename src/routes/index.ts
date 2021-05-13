@@ -10,8 +10,15 @@ import * as VacantionPlanController from '../controllers/vacantionPlan';
 import * as AuthController from '../controllers/auth';
 import * as ProfileController from '../controllers/profile';
 import * as SkillsController from '../controllers/skill';
+import cors from 'cors';
 
 const router = Router();
+const allowedUrls = ['http://localhost:3000']
+const options: cors.CorsOptions = {
+  methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+  origin: allowedUrls,
+};
+router.use(cors(options));
 
 router.post('/login', AuthController.login);
 router.post('/logout', AuthController.logout);
