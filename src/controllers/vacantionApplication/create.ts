@@ -13,10 +13,6 @@ const create: RequestHandler = async (req, res) => {
   try {
     const data = await vacantionAppliationSchema.validateAsync(req.body);
 
-    await db.stageOfApproving.deleteMany();
-
-    await db.vacantionApplication.deleteMany();
-
     const user = await db.employee.findUnique({
       where: {
         id: req.session.user.id
