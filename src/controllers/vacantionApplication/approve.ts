@@ -1,94 +1,55 @@
 import { RequestHandler } from 'express';
-import { pick } from 'lodash';
+import { findIndex } from 'lodash';
 import db from '../../prisma';
 
 const approve: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const currentUser = await db.employee.findUnique({
+    const vacantionAppliation = await db.vacantionApplication.findUnique({
+      where: { id }
+    });
+
+    if (vacantionAppliation.currentApproverId !== req.session.user.id) {
+      return res.status(400).send({
+        message: 'Incorrect current approver'
+      });
+    }
+
+    await db.stageOfApproving.updateMany({
       where: {
-        id: req.session.userId
+        vacantionAppliationId: id,
+        approverId: vacantionAppliation.currentApproverId
+      },
+      data: {
+        approved: true
       }
     });
 
-    if (currentUser.role === 'EMPLOYEE') {
-      return res.status(400).send({
-        message: 'PERMISSION DENIED'
-      });
-    }
-
-    if (currentUser.role === 'HEAD_OF_TEAM') {
-      await db.stagingOfApproving.update({
-        where: {
-          vacantionAppliationId: id
-        },
-        data: {
-          isTeamLeaderApproved: true
-        }
-      });
-    }
-
-    if (currentUser.role === 'HEAD_OF_STREAM') {
-      await db.stagingOfApproving.update({
-        where: {
-          vacantionAppliationId: id
-        },
-        data: {
-          isStreamItLeaderApproved: true
-        }
-      });
-    }
-
-    if (currentUser.role === 'HEAD_OF_DEPARTMENT') {
-      await db.stagingOfApproving.update({
-        where: {
-          vacantionAppliationId: id
-        },
-        data: {
-          isHeaderOfDepartmentApproved: true
-        }
-      });
-    }
-
-    const currentStage = await db.stagingOfApproving.findUnique({
+    const stages = await db.stageOfApproving.findMany({
+      orderBy: {
+        order: 'asc'
+      },
       where: {
         vacantionAppliationId: id
+      },
+      select: {
+        Approver: true
       }
     });
 
-    const stagesOfApproving = [
-      {
-        fio: currentStage.teamItLeaderFio,
-        role: 'HEAD_OF_TEAM',
-        approved: currentStage.isTeamLeaderApproved
-      },
-      {
-        fio: currentStage.streamItLeaderFio,
-        role: 'HEAD_OF_STREAM',
-        approved: currentStage.isStreamItLeaderApproved
-      },
-      {
-        fio: currentStage.headOfDepartmentFio,
-        role: 'HEAD_OF_DEPARTMENT',
-        approved: currentStage.isHeaderOfDepartmentApproved
-      }
-    ];
+    const activeStageIndex = findIndex(stages, stage => vacantionAppliation.currentApproverId === stage.Approver.id);
 
-    const vacantionAppliation = await db.vacantionApplication.findUnique({
-      where: {
-        id: req.params.id
-      },
-      rejectOnNotFound: true
+    const nextStage = activeStageIndex < stages.length - 1 ? stages[activeStageIndex + 1] : stages[activeStageIndex];
+
+    await db.vacantionApplication.update({
+      where: { id },
+      data: {
+        currentApproverId: nextStage?.Approver.id
+      }
     });
 
-    return res.send(
-      pick({ ...vacantionAppliation, stagesOfApproving }, [
-        'startDate',
-        'endDate',
-        'stagesOfApproving'
-      ])
-    );
+    return res.send(200);
   } catch (err) {
     return res.status(400).send({
       message: err.message

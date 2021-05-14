@@ -6,44 +6,39 @@ const get: RequestHandler = async (req, res) => {
   try {
     const vacantionAppliation = await db.vacantionApplication.findUnique({
       where: {
-        employeeId: req.session.userId
+        employeeId: req.session.user.id
       },
       include: {
-        stages: true
+        stages: {
+          orderBy: {
+            order: 'asc'
+          },
+          include: {
+            Approver: true
+          }
+        },
+        currentApprover: true
       }
     });
 
-    const stagingOfApproving = await db.stagingOfApproving.findUnique({
-      where: {
-        vacantionAppliationId: vacantionAppliation.id
-      }
-    });
+    if (!vacantionAppliation) {
+      return res.send({});
+    }
 
-    const stagesOfApproving = [
-      {
-        fio: stagingOfApproving.teamItLeaderFio,
-        role: 'HEAD_OF_TEAM',
-        approved: stagingOfApproving.isTeamLeaderApproved
-      },
-      {
-        fio: stagingOfApproving.streamItLeaderFio,
-        role: 'HEAD_OF_STREAM',
-        approved: stagingOfApproving.isStreamItLeaderApproved
-      },
-      {
-        fio: stagingOfApproving.headOfDepartmentFio,
-        role: 'HEAD_OF_DEPARTMENT',
-        approved: stagingOfApproving.isHeaderOfDepartmentApproved
-      }
-    ];
+    const mappedStages = vacantionAppliation.stages.map(stage => ({
+      approved: stage.approved,
+      role: stage.Approver.role,
+      fio: stage.Approver.fio
+    }));
 
     return res.send(
       pick(
         {
           ...vacantionAppliation,
-          stagesOfApproving
+          currentApproverFio: vacantionAppliation.currentApprover.fio,
+          stagesOfApproving: mappedStages
         },
-        ['startDate', 'endDate', 'stagesOfApproving']
+        ['startDate', 'endDate', 'currentApproverFio', 'stagesOfApproving']
       )
     );
   } catch (err) {

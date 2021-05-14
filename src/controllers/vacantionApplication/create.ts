@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import Joi from 'joi';
 import { pick } from 'lodash';
+import Joi from 'joi';
 import db from '../../prisma';
 
 export const vacantionAppliationSchema = Joi.object().keys({
@@ -13,81 +13,98 @@ const create: RequestHandler = async (req, res) => {
   try {
     const data = await vacantionAppliationSchema.validateAsync(req.body);
 
-    const currentUser = await db.employee.findUnique({
+    await db.stageOfApproving.deleteMany();
+
+    await db.vacantionApplication.deleteMany();
+
+    const user = await db.employee.findUnique({
       where: {
-        id: req.session.userId
+        id: req.session.user.id
+      },
+      include: {
+        Stream: true,
+        Team: true
       }
     });
 
-    const stream = await db.stream.findUnique({
+    const [headOfDepartment, streamLeader, teamLeader] = await db.employee.findMany({
       where: {
-        id: currentUser.streamId
-      }
-    });
-
-    const team = await db.team.findUnique({
-      where: {
-        id: currentUser.teamId
+        OR: [
+          {
+            id: user.Team.teamItLeaderId
+          },
+          {
+            id: user.Stream.streamItLeaderId
+          },
+          {
+            id: user.Stream.headOfDepartmentId
+          }
+        ]
       }
     });
 
     const vacantionAppliation = await db.vacantionApplication.create({
       data: {
         ...data,
-        employeeId: req.session.userId,
-        teamId: currentUser.teamId,
-        streamId: currentUser.streamId,
-        approvalTeamItLeaderId: team.teamItLeaderId,
-        approvalStreamItLeaderId: stream.streamItLeaderId,
-        approvalHeadOfDepartmentId: stream.headOfDepartmentId
+        currentApproverId: teamLeader.id,
+        employeeId: req.session.user.id,
+        teamId: req.session.user.teamId,
+        streamId: req.session.user.streamId,
+        approvalTeamItLeaderId: teamLeader.id,
+        approvalStreamItLeaderId: streamLeader.id,
+        approvalHeadOfDepartmentId: headOfDepartment.id,
+        stages: {
+          create: [
+            {
+              order: 0,
+              approved: false,
+              approverId: teamLeader.id
+            },
+            {
+              order: 1,
+              approved: false,
+              approverId: streamLeader.id
+            },
+            {
+              order: 2,
+              approved: false,
+              approverId: headOfDepartment.id
+            }
+          ]
+        }
+      },
+      include: {
+        stages: {
+          select: {
+            approved: true,
+            id: true,
+            Approver: true
+          }
+        }
       }
     });
 
-    const teamLeader = await db.employee.findUnique({
+    await db.employee.update({
       where: {
-        id: team.teamItLeaderId
-      }
-    });
-
-    const streamLeader = await db.employee.findUnique({
-      where: {
-        id: stream.streamItLeaderId
-      }
-    });
-
-    const headOfDepartment = await db.employee.findUnique({
-      where: {
-        id: stream.headOfDepartmentId
-      }
-    });
-
-    await db.stagingOfApproving.create({
+        id: req.session.user.id
+      },
       data: {
-        vacantionAppliationId: vacantionAppliation.id,
-        teamItLeaderFio: teamLeader.fio,
-        streamItLeaderFio: streamLeader.fio,
-        headOfDepartmentFio: headOfDepartment.fio,
-        isTeamLeaderApproved: false,
-        isStreamItLeaderApproved: false,
-        isHeaderOfDepartmentApproved: false
+        vacantionApplicationId: vacantionAppliation.id
       }
     });
 
-    const stagesOfApproving = [
-      { fio: teamLeader.fio, role: teamLeader.role, approved: false },
-      { fio: streamLeader.fio, role: streamLeader.role, approved: false },
-      { fio: headOfDepartment.fio, role: headOfDepartment.role, approved: false }
-    ];
+    const mappedStages = vacantionAppliation.stages.map(stage => ({
+      approved: stage.approved,
+      role: stage.Approver.role,
+      fio: stage.Approver.fio
+    }));
 
-    return res.send(
-      pick(
-        {
-          ...vacantionAppliation,
-          stagesOfApproving
-        },
-        ['startDate', 'endDate', 'stagesOfApproving']
-      )
-    );
+    return res.send({
+      startDate: vacantionAppliation.startDate,
+      endDate: vacantionAppliation.endDate,
+      currentApproverFio: teamLeader.fio,
+      stages: mappedStages
+    });
   } catch (err) {
     return res.status(400).send({
       message: err.message

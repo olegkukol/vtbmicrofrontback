@@ -1,21 +1,10 @@
 import { RequestHandler } from 'express';
-import { pick } from 'lodash';
 import Employee from '../../models/Employee';
 import db from '../../prisma';
 import logger from '../../logger';
 
 const getAll: RequestHandler = async (req, res) => {
   try {
-    const currentUser = await db.employee.findUnique({
-      where: {
-        id: req.session.userId
-      }
-    });
-
-    if (currentUser.role === 'EMPLOYEE') {
-      return res.send([]);
-    }
-
     const handleEmployeeRole = (role: string, employee: Partial<Employee>) => {
       if (role === 'HEAD_OF_TEAM') {
         return {
@@ -33,22 +22,54 @@ const getAll: RequestHandler = async (req, res) => {
     };
 
     const applications = await db.vacantionApplication.findMany({
-      where: handleEmployeeRole(currentUser.role, currentUser),
-      include: {
-        stages: true
+      where: handleEmployeeRole(req.session.user.role, req.session.user),
+      select: {
+        id: true,
+        startDate: true,
+        endDate: true,
+        currentApprover: true,
+        employee: {
+          select: {
+            fio: true
+          }
+        },
+        team: {
+          select: {
+            name: true
+          }
+        },
+        stream: {
+          select: {
+            name: true
+          }
+        },
+        stages: {
+          orderBy: {
+            order: 'asc'
+          },
+          select: {
+            approved: true,
+            id: true,
+            Approver: true
+          }
+        }
       }
     });
 
-    const stagingOfApprovings = await db.stagingOfApproving.findMany();
-
-    const mapped = applications
-      .map(application => ({
-        ...application,
-        stagesOfApproving: stagingOfApprovings.filter(
-          stagingOfApproving => stagingOfApproving.vacantionAppliationId === application.id
-        )
+    const mapped = applications.map(application => ({
+      id: application.id,
+      startDate: application.startDate,
+      endDate: application.endDate,
+      employeeFio: application.employee.fio,
+      teamName: application.team.name,
+      streamName: application.stream.name,
+      currentApproverFio: application.currentApprover.fio,
+      stages: application.stages.map(stage => ({
+        approved: stage.approved,
+        role: stage.Approver.role,
+        fio: stage.Approver.fio
       }))
-      .map(employee => pick(employee, ['id', 'startDate', 'endDate', 'stagesOfApproving']));
+    }));
 
     return res.send(mapped);
   } catch (err) {

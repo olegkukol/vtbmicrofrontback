@@ -19,16 +19,14 @@ enum Role {
   EMPLOYEE
 }
 
-model StagingOfApproving {
-  id                           String               @id @default(uuid())
-  vacantionAppliationId        String               @unique
-  teamItLeaderFio              String
-  streamItLeaderFio            String
-  headOfDepartmentFio          String
-  isTeamLeaderApproved         Boolean              @default(false)
-  isStreamItLeaderApproved     Boolean              @default(false)
-  isHeaderOfDepartmentApproved Boolean              @default(false)
-  VacantionApplication         VacantionApplication @relation(fields: [vacantionAppliationId], references: [id])
+model StageOfApproving {
+  id                    String               @id @default(uuid())
+  approved              Boolean              @default(false)
+  order                 Int                  @default(0)
+  vacantionAppliationId String
+  approverId            String
+  Approver              Employee?            @relation(fields: [approverId], references: [id])
+  VacantionApplication  VacantionApplication @relation(fields: [vacantionAppliationId], references: [id])
 }
 
 model Skill {
@@ -48,22 +46,23 @@ model VacantionPlan {
 }
 
 model VacantionApplication {
-  id                         String              @id @default(uuid())
-  employee                   Employee?           @relation("employee", fields: [employeeId], references: [id])
-  employeeId                 String              @unique
-  startDate                  DateTime            @default(now())
-  endDate                    DateTime            @default(now())
-  substituteEmployee         Employee?           @relation("substituteEmployee", fields: [substituteEmployeeId], references: [id])
+  id                         String             @id @default(uuid())
+  employee                   Employee?          @relation("employee", fields: [employeeId], references: [id])
+  employeeId                 String             @unique
+  startDate                  DateTime           @default(now())
+  endDate                    DateTime           @default(now())
+  substituteEmployee         Employee?          @relation("substituteEmployee", fields: [substituteEmployeeId], references: [id])
   substituteEmployeeId       String?
-  team                       Team                @relation(fields: [teamId], references: [id])
+  team                       Team               @relation(fields: [teamId], references: [id])
   teamId                     String
-  stream                     Stream              @relation(fields: [streamId], references: [id])
+  stream                     Stream             @relation(fields: [streamId], references: [id])
   streamId                   String
   approvalTeamItLeaderId     String
   approvalStreamItLeaderId   String
   approvalHeadOfDepartmentId String
-  Employee                   Employee[]          @relation("headOfDepartment")
-  stages                     StagingOfApproving?
+  currentApproverId          String?
+  currentApprover            Employee?          @relation("currentApprover", fields: [currentApproverId], references: [id])
+  stages                     StageOfApproving[]
 }
 
 model Employee {
@@ -77,14 +76,15 @@ model Employee {
   skills                 Skill[]
   vacantionPlan          VacantionPlan?        @relation(fields: [vacantionPlanId], references: [id])
   vacantionPlanId        String?
-  Employee               VacantionApplication? @relation("employee")
   SubstituteEmployee     VacantionApplication? @relation("substituteEmployee")
-  HeadOfDepartment       VacantionApplication? @relation("headOfDepartment", fields: [vacantionApplicationId], references: [id])
   Stream                 Stream?               @relation(fields: [streamId], references: [id])
   streamId               String?
   Team                   Team?                 @relation(fields: [teamId], references: [id])
   teamId                 String?
+  StageOfApproving       StageOfApproving[]
+  VacantionApplication   VacantionApplication? @relation("employee")
   vacantionApplicationId String?
+  CurrentApprover        VacantionApplication? @relation("currentApprover")
 }
 
 model Team {
