@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
+import cors from 'cors';
 import routes from './routes';
 
 const RedisStore = connectRedis(session);
@@ -37,6 +38,13 @@ app.use(
       httpOnly: false,
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     }
+  })
+);
+
+app.use(
+  cors({
+    methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+    origin: ['http://localhost:3000']
   })
 );
 
