@@ -7,8 +7,8 @@ const getAll: RequestHandler = async (req, res) => {
       select: {
         id: true,
         name: true,
-        streamId: false,
-        teamItLeaderId: false
+        streamId: true,
+        teamItLeaderId: true
       }
     });
 

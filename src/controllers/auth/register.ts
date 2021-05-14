@@ -32,7 +32,7 @@ const register: RequestHandler = async (req, res) => {
       }
     });
 
-    req.session.userId = newUser.id;
+    req.session.user = newUser;
     req.session.isLogged = true;
 
     return res.send({

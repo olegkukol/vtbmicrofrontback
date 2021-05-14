@@ -37,6 +37,8 @@ const login: RequestHandler = async (req, res) => {
 
     return res.status(200).send({
       id: user.id,
+      fio: user.fio,
+      role: user.role,
       username: user.username
     });
   } catch (err) {

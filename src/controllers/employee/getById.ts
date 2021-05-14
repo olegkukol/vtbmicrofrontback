@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import { omit } from 'lodash';
 import db from '../../prisma';
 
 const getById: RequestHandler = async (req, res) => {
@@ -9,13 +8,18 @@ const getById: RequestHandler = async (req, res) => {
       where: {
         id
       },
-      include: {
-        skills: true
+      select: {
+        skills: true,
+        fio: true,
+        id: true,
+        type: true,
+        password: false,
+        username: false
       },
       rejectOnNotFound: true
     });
 
-    res.send(omit(employee, ['username', 'password']));
+    res.send(employee);
   } catch (err) {
     res.status(400).send({
       message: `Not found stream: ${id} `

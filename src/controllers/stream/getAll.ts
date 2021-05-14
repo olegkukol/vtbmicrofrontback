@@ -1,14 +1,16 @@
 import { RequestHandler } from 'express';
-import { omit } from 'lodash';
 import db from '../../prisma';
 
 const getAll: RequestHandler = async (req, res) => {
   try {
-    const streams = await db.stream.findMany();
+    const streams = await db.stream.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    });
 
-    const mapped = streams.map(stream => omit(stream, ['headOfDepartmentId', 'streamItLeaderId']));
-
-    res.send(mapped);
+    res.send(streams);
   } catch (err) {
     res.status(400).send({
       message: err.message

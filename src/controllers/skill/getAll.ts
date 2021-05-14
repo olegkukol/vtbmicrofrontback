@@ -3,19 +3,17 @@ import { omit } from 'lodash';
 import db from '../../prisma';
 
 const getAll: RequestHandler = async (req, res) => {
-  const { userId } = req.session;
-
   try {
     const skills = await db.skill.findMany({
       where: {
-        employeeId: userId
+        employeeId: req.session.user.id
       }
     });
 
     res.send(skills.map(skill => omit(skill, ['employeeId'])));
   } catch (err) {
     res.status(400).send({
-      message: `Not found skills for: ${userId} `
+      message: `Not found skills for: ${req.session.user.id} `
     });
   }
 };

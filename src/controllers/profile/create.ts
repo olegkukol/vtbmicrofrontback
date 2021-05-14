@@ -19,10 +19,12 @@ const create: RequestHandler = async (req, res) => {
 
     const profile = await db.employee.update({
       where: {
-        id: req.session.userId
+        id: req.session.user.id
       },
       data
     });
+
+    req.session.user = profile;
 
     if (data.role === 'HEAD_OF_STREAM') {
       await db.stream.update({
