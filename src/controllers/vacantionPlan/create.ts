@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
-import { pick } from 'lodash';
 import db from '../../prisma';
 
 export const vacantionPlanSchema = Joi.object().keys({
@@ -16,10 +15,14 @@ const get: RequestHandler = async (req, res) => {
       data: {
         ...data,
         employeeId: req.session.userId
+      },
+      select: {
+        startDate: true,
+        endDate: true
       }
     });
 
-    res.send(pick(vacantionPlan, ['startDate', 'endDate']));
+    res.send(vacantionPlan);
   } catch (err) {
     res.status(400).send({
       message: err.message

@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import { pick } from 'lodash';
 import db from '../../prisma';
 
 const get: RequestHandler = async (req, res) => {
@@ -7,10 +6,14 @@ const get: RequestHandler = async (req, res) => {
     const vacantionPlan = await db.vacantionPlan.findUnique({
       where: {
         employeeId: req.session.userId
+      },
+      select: {
+        startDate: true,
+        endDate: true
       }
     });
 
-    res.send(pick(vacantionPlan, ['startDate', 'endDate']));
+    res.send(vacantionPlan);
   } catch (err) {
     res.status(400).send({
       message: 'Not found'
