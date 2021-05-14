@@ -32,7 +32,7 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
-    req.session.userId = user.id;
+    req.session.user = user;
     req.session.isLogged = true;
 
     return res.status(200).send({
