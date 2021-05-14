@@ -1,6 +1,7 @@
 import { Router } from 'express';
 
 import IsAuthenticated from '../middleware/IsAuthenticated';
+import checkPermissions from '../middleware/checkPermissions';
 
 import * as StreamController from '../controllers/stream';
 import * as TeamController from '../controllers/team';
@@ -31,16 +32,22 @@ router.get('/team/:id', IsAuthenticated, TeamController.getById);
 router.post('/team/', IsAuthenticated, TeamController.create);
 
 router.get('/employees/', IsAuthenticated, EmployeeController.getAll);
+router.get(
+  '/employees/vacantion_applications',
+  IsAuthenticated,
+  checkPermissions,
+  VacantionApplicationController.getAll
+);
 router.get('/employee/:id', IsAuthenticated, EmployeeController.getById);
 
 router.post('/vacantion_application', IsAuthenticated, VacantionApplicationController.create);
 router.post(
   '/vacantion_application/:id/approve',
   IsAuthenticated,
+  checkPermissions,
   VacantionApplicationController.approve
 );
 router.get('/vacantion_application', IsAuthenticated, VacantionApplicationController.get);
-router.get('/vacantion_applications', IsAuthenticated, VacantionApplicationController.getAll);
 
 router.post('/vacantion_plan', IsAuthenticated, VacantionPlanController.create);
 router.get('/vacantion_plan', IsAuthenticated, VacantionPlanController.get);
