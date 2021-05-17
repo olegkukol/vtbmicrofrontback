@@ -12,7 +12,7 @@ const getById: RequestHandler = async (req, res) => {
         id: true,
         name: true,
         streamId: false,
-        teamItLeaderId: false
+        teamLeaderId: false
       },
       rejectOnNotFound: true
     });

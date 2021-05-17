@@ -1,7 +1,7 @@
 interface Stream {
   name: string;
   headOfDepartmentId: string;
-  streamItLeaderId: string;
+  streamLeaderId: string;
 }
 
 export default Stream;

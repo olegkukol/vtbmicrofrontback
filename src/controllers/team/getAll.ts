@@ -8,7 +8,7 @@ const getAll: RequestHandler = async (req, res) => {
         id: true,
         name: true,
         streamId: true,
-        teamItLeaderId: true
+        teamLeaderId: true
       }
     });
 
