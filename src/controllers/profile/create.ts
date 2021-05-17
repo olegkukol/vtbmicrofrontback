@@ -32,7 +32,7 @@ const create: RequestHandler = async (req, res) => {
           id: data.streamId
         },
         data: {
-          streamItLeaderId: profile.id
+          streamLeaderId: profile.id
         }
       });
     }
@@ -43,7 +43,7 @@ const create: RequestHandler = async (req, res) => {
           id: data.teamId
         },
         data: {
-          teamItLeaderId: profile.id
+          teamLeaderId: profile.id
         }
       });
     }
