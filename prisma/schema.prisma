@@ -19,6 +19,11 @@ enum Role {
   EMPLOYEE
 }
 
+enum VacantionApplicationStatus {
+  ACTIVE
+  APPROVED
+}
+
 model StageOfApproving {
   id                    String               @id @default(uuid())
   approved              Boolean              @default(false)
@@ -46,45 +51,45 @@ model VacantionPlan {
 }
 
 model VacantionApplication {
-  id                         String             @id @default(uuid())
-  employee                   Employee?          @relation("employee", fields: [employeeId], references: [id])
-  employeeId                 String             @unique
-  startDate                  DateTime           @default(now())
-  endDate                    DateTime           @default(now())
-  substituteEmployee         Employee?          @relation("substituteEmployee", fields: [substituteEmployeeId], references: [id])
-  substituteEmployeeId       String?
-  team                       Team               @relation(fields: [teamId], references: [id])
-  teamId                     String
-  stream                     Stream             @relation(fields: [streamId], references: [id])
-  streamId                   String
-  approvalTeamItLeaderId     String
-  approvalStreamItLeaderId   String
-  approvalHeadOfDepartmentId String
-  currentApproverId          String?
-  currentApprover            Employee?          @relation("currentApprover", fields: [currentApproverId], references: [id])
-  stages                     StageOfApproving[]
+  id                   String                      @id @default(uuid())
+  employee             Employee?                   @relation("employee", fields: [employeeId], references: [id])
+  employeeId           String
+  status               VacantionApplicationStatus? @default(ACTIVE)
+  startDate            DateTime                    @default(now())
+  endDate              DateTime                    @default(now())
+  substituteEmployee   Employee?                   @relation("substituteEmployee", fields: [substituteEmployeeId], references: [id])
+  substituteEmployeeId String?
+  team                 Team                        @relation(fields: [teamId], references: [id])
+  teamId               String
+  stream               Stream                      @relation(fields: [streamId], references: [id])
+  streamId             String
+  currentApproverId    String?
+  currentApprover      Employee?                   @relation("currentApprover", fields: [currentApproverId], references: [id])
+  stages               StageOfApproving[]
 }
 
 model Employee {
-  id                     String                @id @default(uuid())
-  username               String                @unique
+  id                     String                 @id @default(uuid())
+  username               String                 @unique
   password               String
   fio                    String?
   position               String?
-  role                   Role?                 @default(EMPLOYEE)
-  type                   Type?                 @default(INTERNAL)
+  role                   Role?                  @default(EMPLOYEE)
+  type                   Type?                  @default(INTERNAL)
   skills                 Skill[]
-  vacantionPlan          VacantionPlan?        @relation(fields: [vacantionPlanId], references: [id])
-  vacantionPlanId        String?
-  SubstituteEmployee     VacantionApplication? @relation("substituteEmployee")
-  Stream                 Stream?               @relation(fields: [streamId], references: [id])
+  vacantionPlan          VacantionPlan[]        @relation(references: [id])
+  SubstituteEmployee     VacantionApplication?  @relation("substituteEmployee")
+  Stream                 Stream?                @relation(fields: [streamId], references: [id])
   streamId               String?
-  Team                   Team?                 @relation(fields: [teamId], references: [id])
+  Team                   Team?                  @relation(fields: [teamId], references: [id])
   teamId                 String?
   StageOfApproving       StageOfApproving[]
-  VacantionApplication   VacantionApplication? @relation("employee")
+  VacantionApplication   VacantionApplication[] @relation("employee")
+  CurrentApprover        VacantionApplication[] @relation("currentApprover")
+  HeadOfDepartment       Stream?                @relation("headOfDepartment")
+  StreamLeader           Stream?                @relation("streamLeader")
+  TeamLeader             Team?                  @relation("teamLeader")
   vacantionApplicationId String?
-  CurrentApprover        VacantionApplication? @relation("currentApprover")
 }
 
 model Team {
@@ -92,7 +97,8 @@ model Team {
   name                 String
   streamId             String
   stream               Stream                 @relation(fields: [streamId], references: [id])
-  teamItLeaderId       String?
+  teamLeaderId         String?
+  teamLeader           Employee?              @relation("teamLeader", fields: [teamLeaderId], references: [id])
   VacantionApplication VacantionApplication[]
   emploees             Employee[]
 }
@@ -100,8 +106,10 @@ model Team {
 model Stream {
   id                   String                 @id @default(uuid())
   name                 String
+  headOfDepartment     Employee?              @relation("headOfDepartment", fields: [headOfDepartmentId], references: [id])
   headOfDepartmentId   String?
-  streamItLeaderId     String?
+  streamLeaderId       String?
+  streamLeader         Employee?              @relation("streamLeader", fields: [streamLeaderId], references: [id])
   teams                Team[]
   Employee             Employee[]
   VacantionApplication VacantionApplication[]
