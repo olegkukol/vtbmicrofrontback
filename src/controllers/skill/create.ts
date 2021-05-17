@@ -17,6 +17,7 @@ const addSkill: RequestHandler = async (req, res) => {
         employeeId: req.session.user.id
       },
       select: {
+        id: true,
         name: true,
         level: true
       }
