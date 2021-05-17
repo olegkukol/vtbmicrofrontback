@@ -22,9 +22,9 @@ const get: RequestHandler = async (req, res) => {
       }
     });
 
-    res.send(vacantionPlan);
+    return res.send(vacantionPlan);
   } catch (err) {
-    res.status(400).send({
+    return res.status(400).send({
       message: err.message
     });
   }

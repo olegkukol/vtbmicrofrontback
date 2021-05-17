@@ -34,9 +34,12 @@ const approve: RequestHandler = async (req, res) => {
         vacantionAppliationId: id
       },
       select: {
+        approved: true,
         Approver: true
       }
     });
+
+    const approvedStages = stages.filter(stage => stage.approved);
 
     const activeStageIndex = findIndex(stages, stage => vacantionAppliation.currentApproverId === stage.Approver.id);
 
@@ -45,7 +48,8 @@ const approve: RequestHandler = async (req, res) => {
     await db.vacantionApplication.update({
       where: { id },
       data: {
-        currentApproverId: nextStage?.Approver.id
+        currentApproverId: nextStage?.Approver.id,
+        status: approvedStages.length === 3 ? 'APPROVED' : 'ACTIVE'
       }
     });
 

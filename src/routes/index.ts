@@ -19,6 +19,7 @@ router.post('/logout', AuthController.logout);
 router.post('/register', AuthController.register);
 
 router.post('/profile', IsAuthenticated, ProfileController.create);
+router.get('/profile', IsAuthenticated, ProfileController.get);
 
 router.post('/skill', IsAuthenticated, SkillsController.create);
 router.get('/skills', IsAuthenticated, SkillsController.getAll);
@@ -47,7 +48,7 @@ router.post(
   checkPermissions,
   VacantionApplicationController.approve
 );
-router.get('/vacantion_application', IsAuthenticated, VacantionApplicationController.get);
+router.get('/vacantion_applications', IsAuthenticated, VacantionApplicationController.get);
 
 router.post('/vacantion_plan', IsAuthenticated, VacantionPlanController.create);
 router.get('/vacantion_plan', IsAuthenticated, VacantionPlanController.get);
