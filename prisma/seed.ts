@@ -146,13 +146,10 @@ async function main() {
       }
     });
 
-    await prisma.stream.updateMany({
-      data: {
-        headOfDepartmentId: headOfDepartment.id
-      }
-    });
-
-    await prisma.stream.updateMany({
+    await prisma.stream.update({
+      where: {
+        id: stream.id
+      },
       data: {
         headOfDepartmentId: headOfDepartment.id
       }
@@ -163,7 +160,7 @@ async function main() {
         id: stream.teams[0].id
       },
       data: {
-        teamItLeaderId: headOfTeam.id
+        teamLeaderId: headOfTeam.id
       }
     });
 
@@ -172,7 +169,7 @@ async function main() {
         id: stream.id
       },
       data: {
-        streamItLeaderId: headOfStream.id
+        streamLeaderId: headOfStream.id
       }
     });
   } catch (e) {
