@@ -44,7 +44,8 @@ app.use(
 app.use(
   cors({
     methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
-    origin: ['http://localhost:3000']
+    credentials: true,
+    origin: ['http://localhost:3000', 'http://timxag.ru:3005']
   })
 );
 
