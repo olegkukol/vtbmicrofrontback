@@ -11,6 +11,8 @@ const get: RequestHandler = async (req, res) => {
       select: {
         fio: true,
         position: true,
+        teamId: true,
+        streamId: true,
         role: true
       }
     });

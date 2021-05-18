@@ -39,6 +39,8 @@ const login: RequestHandler = async (req, res) => {
       id: user.id,
       fio: user.fio,
       role: user.role,
+      teamId: user.teamId,
+      streamId: user.streamId,
       username: user.username
     });
   } catch (err) {

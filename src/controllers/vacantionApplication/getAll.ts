@@ -4,6 +4,8 @@ import db from '../../prisma';
 import logger from '../../logger';
 
 const getAll: RequestHandler = async (req, res) => {
+  const { offset = 0, limit = 50 } = req.query;
+
   try {
     const handleEmployeeRole = (role: string, employee: Partial<Employee>) => {
       if (role === 'HEAD_OF_TEAM') {
@@ -53,7 +55,9 @@ const getAll: RequestHandler = async (req, res) => {
             Approver: true
           }
         }
-      }
+      },
+      take: Number(limit),
+      skip: Number(offset)
     });
 
     const mapped = applications.map(application => ({

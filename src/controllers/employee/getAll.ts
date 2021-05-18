@@ -3,6 +3,8 @@ import db from '../../prisma';
 import logger from '../../logger';
 
 const getAll: RequestHandler = async (req, res) => {
+  const { limit = 50, offset = 0, searchQuery } = req.query;
+
   try {
     // tracking https://github.com/prisma/prisma/issues/5042 for exclude fields params
     const employees = await db.employee.findMany({
@@ -12,11 +14,30 @@ const getAll: RequestHandler = async (req, res) => {
         id: true,
         type: true,
         password: false,
-        username: false
-      }
+        username: false,
+        Team: true,
+        Stream: true
+      },
+      where: {
+        fio: {
+          contains: searchQuery && String(searchQuery),
+          mode: 'insensitive'
+        }
+      },
+      take: Number(limit),
+      skip: Number(offset)
     });
 
-    return res.send(employees);
+    const mapped = employees.map(employee => ({
+      skills: employee.skills,
+      fio: employee.fio,
+      id: employee.id,
+      type: employee.type,
+      teamId: employee?.Team?.id || null,
+      streamId: employee?.Stream?.id || null
+    }));
+
+    return res.send(mapped);
   } catch (err) {
     logger.log({
       level: 'info',
