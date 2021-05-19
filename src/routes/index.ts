@@ -26,6 +26,7 @@ router.get('/skills', IsAuthenticated, SkillsController.getAll);
 
 router.get('/streams/', IsAuthenticated, StreamController.getAll);
 router.get('/stream/:id', IsAuthenticated, StreamController.getById);
+router.get('/stream/:id/teams', IsAuthenticated, StreamController.getTeams);
 router.post('/stream/', IsAuthenticated, StreamController.create);
 
 router.get('/teams/', IsAuthenticated, TeamController.getAll);
