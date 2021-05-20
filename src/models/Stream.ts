@@ -1,4 +1,5 @@
 interface Stream {
+  id: string;
   name: string;
   headOfDepartmentId: string;
   streamLeaderId: string;

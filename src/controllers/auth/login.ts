@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
 import { compareSync } from 'bcrypt';
+import Employee from '../../models/Employee';
 import db from '../../prisma';
 
 export const loginSchema = Joi.object().keys({
@@ -10,11 +11,11 @@ export const loginSchema = Joi.object().keys({
 
 const login: RequestHandler = async (req, res) => {
   try {
-    const data = await loginSchema.validateAsync(req.body);
+    const { username, password } = await loginSchema.validateAsync(req.body);
 
-    const user = await db.employee.findUnique({
+    const user: Employee = await db.employee.findUnique({
       where: {
-        username: data.username
+        username: username.toLowerCase()
       }
     });
 
@@ -24,7 +25,7 @@ const login: RequestHandler = async (req, res) => {
       });
     }
 
-    const isPasswordValid = compareSync(data.password, user.password);
+    const isPasswordValid = compareSync(password, user.password);
 
     if (!isPasswordValid) {
       return res.status(400).send({
