@@ -16,7 +16,7 @@ const register: RequestHandler = async (req, res) => {
 
     const foundedUser: Employee = await db.employee.findUnique({
       where: {
-        username
+        username: username.toLowerCase()
       }
     });
 
