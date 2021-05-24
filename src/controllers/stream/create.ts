@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import Stream from '../../models/Stream';
 import db from '../../prisma';
 
 export const streamSchema = Joi.object().keys({
@@ -10,7 +11,7 @@ const create: RequestHandler = async (req, res) => {
   try {
     const data = await streamSchema.validateAsync(req.body);
 
-    const stream = await db.stream.create({
+    const stream: Stream = await db.stream.create({
       data
     });
 

@@ -1,10 +1,13 @@
 import { RequestHandler } from 'express';
+import Team from '../../models/Team';
 import db from '../../prisma';
+
+type SelectedTeam = Pick<Team, 'id' | 'name' | 'streamId'>;
 
 const getTeams: RequestHandler = async (req, res) => {
   const { id } = req.params;
   try {
-    const teams = await db.team.findMany({
+    const teams: SelectedTeam[] = await db.team.findMany({
       where: {
         streamId: id
       },

@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import db from '../../prisma';
 
-const get: RequestHandler = async (req, res) => {
+const getById: RequestHandler = async (req, res) => {
   try {
     const vacantionPlan = await db.vacantionPlan.findUnique({
       where: {
@@ -21,4 +21,4 @@ const get: RequestHandler = async (req, res) => {
   }
 };
 
-export default get;
+export default getById;

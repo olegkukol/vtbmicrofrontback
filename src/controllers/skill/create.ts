@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import Joi from 'joi';
+import Skill from '../../models/Skill';
 import db from '../../prisma';
 
 export const skillSchema = Joi.object().keys({
@@ -11,7 +12,7 @@ const addSkill: RequestHandler = async (req, res) => {
   try {
     const data = await skillSchema.validateAsync(req.body);
 
-    const skill = await db.skill.create({
+    const skill: Omit<Skill, 'employeeId' | 'Employee'> = await db.skill.create({
       data: {
         ...data,
         employeeId: req.session.user.id

@@ -1,10 +1,13 @@
 import { RequestHandler } from 'express';
+import Employee from '../../models/Employee';
 import db from '../../prisma';
+
+type SelectedEmployee = Pick<Employee, 'id' | 'fio' | 'type' | 'skills' | 'Team' | 'Stream'>;
 
 const getById: RequestHandler = async (req, res) => {
   const { id } = req.params;
   try {
-    const employee = await db.employee.findUnique({
+    const employee: SelectedEmployee = await db.employee.findUnique({
       where: {
         id
       },

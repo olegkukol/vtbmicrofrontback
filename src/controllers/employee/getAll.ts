@@ -1,13 +1,16 @@
 import { RequestHandler } from 'express';
+import Employee from '../../models/Employee';
 import db from '../../prisma';
 import logger from '../../logger';
+
+type SelectedEmployee = Pick<Employee, 'id' | 'fio' | 'type' | 'skills' | 'Team' | 'Stream'>;
 
 const getAll: RequestHandler = async (req, res) => {
   const { limit = 50, offset = 0, searchQuery } = req.query;
 
   try {
     // tracking https://github.com/prisma/prisma/issues/5042 for exclude fields params
-    const employees = await db.employee.findMany({
+    const employees: SelectedEmployee[] = await db.employee.findMany({
       select: {
         skills: true,
         fio: true,

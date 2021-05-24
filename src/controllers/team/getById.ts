@@ -1,10 +1,15 @@
 import { RequestHandler } from 'express';
+
+import Team from '../../models/Team';
 import db from '../../prisma';
+
+type SelectedTeam = Pick<Team, 'id' | 'name'>;
 
 const getById: RequestHandler = async (req, res) => {
   const { id } = req.params;
+
   try {
-    const team = await db.team.findUnique({
+    const team: SelectedTeam = await db.team.findUnique({
       where: {
         id
       },

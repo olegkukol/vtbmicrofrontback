@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
-import { omit } from 'lodash';
+import Skill from '../../models/Skill';
 import db from '../../prisma';
 
 const getAll: RequestHandler = async (req, res) => {
   try {
-    const skills = await db.skill.findMany({
+    const skills: Omit<Skill, 'employeeId' | 'Employee'>[] = await db.skill.findMany({
       where: {
         employeeId: req.session.user.id
       },

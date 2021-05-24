@@ -1,9 +1,11 @@
 import { RequestHandler } from 'express';
+
+import Team from '../../models/Team';
 import db from '../../prisma';
 
 const getAll: RequestHandler = async (req, res) => {
   try {
-    const teams = await db.team.findMany({
+    const teams: Team[] = await db.team.findMany({
       select: {
         id: true,
         name: true,

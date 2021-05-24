@@ -3,8 +3,8 @@ import Joi from 'joi';
 import db from '../../prisma';
 
 export const vacantionPlanSchema = Joi.object().keys({
-  startDate: Joi.string().required(),
-  endDate: Joi.string().required()
+  startDate: Joi.date().required(),
+  endDate: Joi.date().required()
 });
 
 const get: RequestHandler = async (req, res) => {

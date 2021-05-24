@@ -1,4 +1,4 @@
 import create from './create';
-import get from './get';
+import getById from './getById';
 
-export { create, get };
+export { create, getById };

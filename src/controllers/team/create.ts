@@ -1,18 +1,20 @@
-import { RequestHandler } from 'express';
 import Joi from 'joi';
+import { RequestHandler } from 'express';
+
+import Team from '../../models/Team';
 import db from '../../prisma';
 
 export const teamSchema = Joi.object().keys({
   name: Joi.string().required(),
   streamId: Joi.string().required(),
-  teamItLeaderId: Joi.string().required()
+  teamLeaderId: Joi.string().required()
 });
 
 const create: RequestHandler = async (req, res) => {
   try {
     const data = await teamSchema.validateAsync(req.body);
 
-    const team = await db.team.create({
+    const team: Team = await db.team.create({
       data
     });
 

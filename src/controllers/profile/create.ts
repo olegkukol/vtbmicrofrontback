@@ -3,6 +3,7 @@ import Joi from 'joi';
 import { omit } from 'lodash';
 import db from '../../prisma';
 import logger from '../../logger';
+import Employee from '../../models/Employee';
 
 export const profileSchema = Joi.object().keys({
   fio: Joi.string().required(),
@@ -17,7 +18,7 @@ const create: RequestHandler = async (req, res) => {
   try {
     const data = await profileSchema.validateAsync(req.body);
 
-    const profile = await db.employee.update({
+    const profile: Employee = await db.employee.update({
       where: {
         id: req.session.user.id
       },
