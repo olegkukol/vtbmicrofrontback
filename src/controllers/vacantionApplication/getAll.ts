@@ -1,35 +1,38 @@
 import { RequestHandler } from 'express';
-import Employee from '../../models/Employee';
+
 import db from '../../prisma';
 import logger from '../../logger';
 
 const getAll: RequestHandler = async (req, res) => {
-  const { offset = 0, limit = 50 } = req.query;
+  const { streamId, teamId } = req.query;
+
+  const { user } = req.session;
 
   try {
-    const handleEmployeeRole = (role: string, employee: Partial<Employee>) => {
-      if (role === 'HEAD_OF_TEAM') {
-        return {
-          teamId: employee.teamId
-        };
+    const params = [
+      teamId && {
+        teamId: String(teamId)
+      },
+      streamId && {
+        streamId: String(streamId)
+      },
+      user.role === 'HEAD_OF_TEAM' && {
+        teamId: user.teamId
+      },
+      user.role === 'HEAD_OF_STREAM' && {
+        streamId: user.streamId
       }
-
-      if (role === 'HEAD_OF_STREAM') {
-        return {
-          streamId: employee.streamId
-        };
-      }
-
-      return {};
-    };
+    ].filter(Boolean);
 
     const applications = await db.vacantionApplication.findMany({
-      where: handleEmployeeRole(req.session.user.role, req.session.user),
+      where: {
+        AND: params
+      },
       select: {
         id: true,
         startDate: true,
         endDate: true,
-        currentApprover: true,
+        approver: true,
         employee: {
           select: {
             fio: true
@@ -56,8 +59,8 @@ const getAll: RequestHandler = async (req, res) => {
           }
         }
       },
-      take: Number(limit),
-      skip: Number(offset)
+      take: res.pagination.limit,
+      skip: res.pagination.skip
     });
 
     const mapped = applications.map(application => ({
@@ -67,7 +70,7 @@ const getAll: RequestHandler = async (req, res) => {
       employeeFio: application.employee.fio,
       teamName: application.team.name,
       streamName: application.stream.name,
-      currentApproverFio: application.currentApprover.fio,
+      approverFio: application.approver.fio,
       stages: application.stages.map(stage => ({
         approved: stage.approved,
         role: stage.Approver.role,
@@ -75,7 +78,10 @@ const getAll: RequestHandler = async (req, res) => {
       }))
     }));
 
-    return res.send(mapped);
+    return res.send({
+      list: mapped,
+      ...res.pagination
+    });
   } catch (err) {
     logger.log({
       level: 'info',

@@ -1,16 +1,18 @@
 import { RequestHandler } from 'express';
 import { findIndex } from 'lodash';
+import VacantionApplication from '../../models/VacantionApplication';
 import db from '../../prisma';
+import logger from '../../logger';
 
 const approve: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const vacantionAppliation = await db.vacantionApplication.findUnique({
+    const vacantionAppliation: VacantionApplication = await db.vacantionApplication.findUnique({
       where: { id }
     });
 
-    if (vacantionAppliation.currentApproverId !== req.session.user.id) {
+    if (vacantionAppliation.approverId !== req.session.user.id) {
       return res.status(400).send({
         message: 'Incorrect current approver'
       });
@@ -19,7 +21,7 @@ const approve: RequestHandler = async (req, res) => {
     await db.stageOfApproving.updateMany({
       where: {
         vacantionAppliationId: id,
-        approverId: vacantionAppliation.currentApproverId
+        approverId: vacantionAppliation.approverId
       },
       data: {
         approved: true
@@ -41,20 +43,24 @@ const approve: RequestHandler = async (req, res) => {
 
     const approvedStages = stages.filter(stage => stage.approved);
 
-    const activeStageIndex = findIndex(stages, stage => vacantionAppliation.currentApproverId === stage.Approver.id);
+    const activeStageIndex = findIndex(stages, stage => vacantionAppliation.approverId === stage.Approver.id);
 
     const nextStage = activeStageIndex < stages.length - 1 ? stages[activeStageIndex + 1] : stages[activeStageIndex];
 
     await db.vacantionApplication.update({
       where: { id },
       data: {
-        currentApproverId: nextStage?.Approver.id,
+        approverId: nextStage?.Approver.id,
         status: approvedStages.length === 3 ? 'APPROVED' : 'ACTIVE'
       }
     });
 
     return res.send(200);
   } catch (err) {
+    logger.log({
+      level: 'info',
+      message: err.message
+    });
     return res.status(400).send({
       message: err.message
     });

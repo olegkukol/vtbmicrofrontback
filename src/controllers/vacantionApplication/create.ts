@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import { isAfter, differenceInDays } from 'date-fns';
 import Joi from 'joi';
+import VacantionApplication from '../../models/VacantionApplication';
 import db from '../../prisma';
 
 export const vacantionAppliationSchema = Joi.object().keys({
@@ -13,26 +14,28 @@ const DAYS_LIMIT_PER_YEAR = 28;
 
 const create: RequestHandler = async (req, res) => {
   try {
-    const data = await vacantionAppliationSchema.validateAsync(req.body);
+    const { startDate, endDate, substituteEmployeeId } = await vacantionAppliationSchema.validateAsync(req.body);
 
-    if (isAfter(data.startDate, data.endDate)) {
+    if (isAfter(startDate, endDate)) {
       return res.status(400).send({
         message: 'Invalid date provided'
       });
     }
 
-    const applications = await db.vacantionApplication.findMany({
+    const applications: VacantionApplication[] = await db.vacantionApplication.findMany({
       where: {
         employeeId: req.session.user.id
       }
     });
 
+    const vacantionDuration = differenceInDays(endDate, startDate);
+
     const daysRemaining = applications.reduce(
-      (acc, application) => acc + differenceInDays(application.startDate, application.endDate),
+      (acc, application) => acc - differenceInDays(application.endDate, application.startDate),
       DAYS_LIMIT_PER_YEAR
     );
 
-    if (daysRemaining < 0) {
+    if (daysRemaining <= 0 || daysRemaining - vacantionDuration <= 0) {
       return res.status(400).send({
         message: 'Vacantion limit exceeded'
       });
@@ -59,8 +62,10 @@ const create: RequestHandler = async (req, res) => {
 
     const vacantionAppliation = await db.vacantionApplication.create({
       data: {
-        ...data,
-        currentApproverId: user.Team.teamLeader.id,
+        startDate,
+        endDate,
+        substituteEmployeeId,
+        approverId: user.Team.teamLeader.id,
         employeeId: req.session.user.id,
         teamId: req.session.user.teamId,
         streamId: req.session.user.streamId,
@@ -97,6 +102,7 @@ const create: RequestHandler = async (req, res) => {
 
     return res.send({
       item: {
+        id: vacantionAppliation.id,
         startDate: vacantionAppliation.startDate,
         endDate: vacantionAppliation.endDate,
         currentApproverFio: user.Team.teamLeader.fio,
@@ -107,7 +113,7 @@ const create: RequestHandler = async (req, res) => {
           fio: stage.Approver.fio
         }))
       },
-      daysRemaining
+      daysRemaining: daysRemaining - vacantionDuration
     });
   } catch (err) {
     return res.status(400).send({

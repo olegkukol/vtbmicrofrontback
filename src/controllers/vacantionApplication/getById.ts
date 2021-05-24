@@ -5,17 +5,19 @@ import logger from '../../logger';
 
 const DAYS_LIMIT_PER_YEAR = 28;
 
-const get: RequestHandler = async (req, res) => {
+const getById: RequestHandler = async (req, res) => {
+  const { user } = req.session;
+
   try {
     const applications = await db.vacantionApplication.findMany({
       where: {
-        employeeId: req.session.user.id
+        employeeId: user.id
       },
       select: {
         id: true,
         startDate: true,
         endDate: true,
-        currentApprover: true,
+        approver: true,
         employee: {
           select: {
             fio: true
@@ -51,7 +53,7 @@ const get: RequestHandler = async (req, res) => {
       employeeFio: application.employee.fio,
       teamName: application.team.name,
       streamName: application.stream.name,
-      currentApproverFio: application.currentApprover.fio,
+      currentApproverFio: application.approver.fio,
       stages: application.stages.map(stage => ({
         approved: stage.approved,
         role: stage.Approver.role,
@@ -60,7 +62,7 @@ const get: RequestHandler = async (req, res) => {
     }));
 
     const daysRemaining = applications.reduce(
-      (acc, application) => acc + differenceInDays(application.startDate, application.endDate),
+      (acc, application) => acc - differenceInDays(application.endDate, application.startDate),
       DAYS_LIMIT_PER_YEAR
     );
 
@@ -79,4 +81,4 @@ const get: RequestHandler = async (req, res) => {
   }
 };
 
-export default get;
+export default getById;
