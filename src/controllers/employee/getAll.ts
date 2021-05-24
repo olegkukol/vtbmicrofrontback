@@ -6,7 +6,7 @@ import logger from '../../logger';
 type SelectedEmployee = Pick<Employee, 'id' | 'fio' | 'type' | 'skills' | 'Team' | 'Stream'>;
 
 const getAll: RequestHandler = async (req, res) => {
-  const { limit = 50, offset = 0, searchQuery } = req.query;
+  const { searchQuery } = req.query;
 
   try {
     // tracking https://github.com/prisma/prisma/issues/5042 for exclude fields params
@@ -26,9 +26,7 @@ const getAll: RequestHandler = async (req, res) => {
           contains: searchQuery && String(searchQuery),
           mode: 'insensitive'
         }
-      },
-      take: Number(limit),
-      skip: Number(offset)
+      }
     });
 
     const mapped = employees.map(employee => ({
