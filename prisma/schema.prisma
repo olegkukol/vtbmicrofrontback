@@ -63,8 +63,8 @@ model VacantionApplication {
   teamId               String
   stream               Stream                      @relation(fields: [streamId], references: [id])
   streamId             String
-  currentApproverId    String?
-  currentApprover      Employee?                   @relation("currentApprover", fields: [currentApproverId], references: [id])
+  approverId           String?
+  approver             Employee?                   @relation("currentApprover", fields: [approverId], references: [id])
   stages               StageOfApproving[]
 }
 
@@ -88,7 +88,7 @@ model Employee {
   CurrentApprover        VacantionApplication[] @relation("currentApprover")
   HeadOfDepartment       Stream?                @relation("headOfDepartment")
   StreamLeader           Stream?                @relation("streamLeader")
-  TeamLeader             Team?                  @relation("teamLeader")
+  TeamLeader             Team[]                 @relation("teamLeader")
   vacantionApplicationId String?
 }
 
@@ -100,7 +100,7 @@ model Team {
   teamLeaderId         String?
   teamLeader           Employee?              @relation("teamLeader", fields: [teamLeaderId], references: [id])
   VacantionApplication VacantionApplication[]
-  emploees             Employee[]
+  employees            Employee[]
 }
 
 model Stream {
