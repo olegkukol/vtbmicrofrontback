@@ -46,7 +46,7 @@ const register: RequestHandler = async (req, res) => {
       message: err.message
     });
     return res.status(400).send({
-      message: 'User already exists'
+      message: err.message
     });
   }
 };
