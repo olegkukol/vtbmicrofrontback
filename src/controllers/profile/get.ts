@@ -7,9 +7,13 @@ type SelectedEmployee = Pick<Employee, 'fio' | 'type' | 'skills' | 'teamId' | 's
 
 const get: RequestHandler = async (req, res) => {
   try {
+    console.log('profile/get ', req);
+    // @ts-ignore
+    const sessionsObj = req.sessionStore.sessions;
+    const userSession = JSON.parse(sessionsObj[Object.keys(sessionsObj)[0]]);
     const profile: SelectedEmployee = await db.employee.findUnique({
       where: {
-        id: req.session.user.id
+        id: userSession.user.id
       },
       select: {
         fio: true,

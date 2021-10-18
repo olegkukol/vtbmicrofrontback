@@ -2,15 +2,10 @@ version: '3'
 
 services:
   postgres:
-    image: postgres:10.4
+    image: postgres:9.6
     ports:
-      - '35432:5432'
+      - '5432'
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: db
-
-  redis:
-    image: 'redis:alpine'
-    ports:
-      - '6379:6379'
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres

@@ -10,6 +10,8 @@ export const loginSchema = Joi.object().keys({
 });
 
 const login: RequestHandler = async (req, res) => {
+  // eslint-disable-next-line no-console
+  console.log('auth_login RequestHandler', req.body);
   try {
     const { username, password } = await loginSchema.validateAsync(req.body);
 

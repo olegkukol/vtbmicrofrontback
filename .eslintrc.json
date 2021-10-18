@@ -13,6 +13,7 @@
     "implicit-arrow-linebreak": 1,
     "no-console": "warn",
     "object-curly-newline": 0,
+    "linebreak-style": 0,
     "import/extensions": [
       0,
       "never",
